@@ -13,8 +13,7 @@
                 {{-- Logo --}}
                 <div class="flex-shrink-0 flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center">
-                        <x-application-logo class="block h-10 w-auto fill-current text-indigo-600" />
-                        <span class="ml-2 text-xl font-bold text-gray-900 hidden sm:block">Luxylia</span>
+                        <x-luxylia-logo class="block h-10 w-auto text-indigo-600" />
                     </a>
                 </div>
 

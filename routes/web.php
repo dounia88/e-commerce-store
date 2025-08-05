@@ -32,11 +32,15 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
-// Route de test pour la navbar (uniquement en développement)
+// Routes de test (uniquement en développement)
 if (app()->environment('local')) {
     Route::get('/test-navbar', function () {
         return view('test-navbar');
     })->name('test.navbar');
+
+    Route::get('/demo-categories', function () {
+        return view('demo-categories');
+    })->name('demo.categories');
 }
 
 // Routes pour le panier (authentification requise)

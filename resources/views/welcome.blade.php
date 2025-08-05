@@ -10,7 +10,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div class="text-center">
                 <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                    Découvrez notre Marketplace
+                    Découvrez Luxylia
                 </h1>
                 <p class="text-xl mb-8 max-w-2xl mx-auto">
                     Trouvez tout ce dont vous avez besoin parmi des milliers de produits de qualité, vendus par des vendeurs de confiance.
@@ -30,24 +30,82 @@
     <!-- Catégories populaires -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 class="text-3xl font-bold text-center mb-12">Catégories populaires</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @php
-                $categories = \App\Models\Category::active()->take(6)->get();
+                $categories = \App\Models\Category::active()->take(9)->get();
+
+                // Fallback si pas assez de catégories en base
+                if($categories->count() < 6) {
+                    $defaultCategories = collect([
+                        (object)['id' => 1, 'name' => 'Électronique', 'slug' => 'electronique', 'description' => 'Smartphones, ordinateurs, accessoires tech', 'image' => null],
+                        (object)['id' => 2, 'name' => 'Mode & Beauté', 'slug' => 'mode-beaute', 'description' => 'Vêtements, chaussures, cosmétiques', 'image' => null],
+                        (object)['id' => 3, 'name' => 'Maison & Jardin', 'slug' => 'maison-jardin', 'description' => 'Décoration, meubles, jardinage', 'image' => null],
+                        (object)['id' => 4, 'name' => 'Sport & Loisirs', 'slug' => 'sport-loisirs', 'description' => 'Équipements sportifs, jeux, hobbies', 'image' => null],
+                        (object)['id' => 5, 'name' => 'Auto & Moto', 'slug' => 'auto-moto', 'description' => 'Véhicules, pièces détachées, accessoires', 'image' => null],
+                        (object)['id' => 6, 'name' => 'Livres & Culture', 'slug' => 'livres-culture', 'description' => 'Livres, musique, films, art', 'image' => null],
+                        (object)['id' => 7, 'name' => 'Santé & Bien-être', 'slug' => 'sante-bien-etre', 'description' => 'Produits de santé, fitness, relaxation', 'image' => null],
+                        (object)['id' => 8, 'name' => 'Enfants & Bébés', 'slug' => 'enfants-bebes', 'description' => 'Jouets, vêtements, puériculture', 'image' => null],
+                        (object)['id' => 9, 'name' => 'Alimentation', 'slug' => 'alimentation', 'description' => 'Produits frais, épicerie, boissons', 'image' => null],
+                    ]);
+                    $categories = $categories->concat($defaultCategories)->take(9);
+                }
             @endphp
             @foreach($categories as $category)
-                <a href="{{ route('categories.show', $category) }}" class="group">
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-200 transition-colors">
-                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                            </svg>
-                        </div>
-                        <h3 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                <a href="{{ isset($category->id) && $category->id <= 1000 ? route('categories.index') : route('categories.show', $category) }}" class="group">
+                    <div class="bg-white rounded-xl shadow-md p-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100">
+                        @if($category->image)
+                            <div class="w-20 h-20 mx-auto mb-6 rounded-full overflow-hidden">
+                                <img src="{{ asset($category->image) }}" alt="{{ $category->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            </div>
+                        @else
+                            @php
+                                $categoryIcons = [
+                                    'Électronique' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>',
+                                    'Mode & Beauté' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>',
+                                    'Maison & Jardin' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>',
+                                    'Sport & Loisirs' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>',
+                                    'Auto & Moto' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>',
+                                    'Livres & Culture' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>',
+                                    'Santé & Bien-être' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>',
+                                    'Enfants & Bébés' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+                                    'Alimentation' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>'
+                                ];
+                                $iconPath = $categoryIcons[$category->name] ?? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>';
+                            @endphp
+                            <div class="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:from-indigo-200 group-hover:to-purple-200 transition-all duration-300">
+                                <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {!! $iconPath !!}
+                                </svg>
+                            </div>
+                        @endif
+                        <h3 class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300 mb-2">
                             {{ $category->name }}
                         </h3>
+                        @if($category->description)
+                            <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ Str::limit($category->description, 80) }}</p>
+                        @endif
+                        <div class="flex items-center justify-center text-sm text-indigo-600 font-medium group-hover:text-indigo-700">
+                            <span>Découvrir</span>
+                            <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </div>
                     </div>
                 </a>
             @endforeach
+        </div>
+
+        <!-- Bouton voir toutes les catégories -->
+        <div class="text-center mt-12">
+            <a href="{{ route('categories.index') }}" class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-7H5m14 14H5"></path>
+                </svg>
+                Voir toutes les catégories
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
         </div>
     </div>
 
