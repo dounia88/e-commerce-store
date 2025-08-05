@@ -2,15 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Cart extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'product_id',
-        'quantity'
+        'quantity',
+        'price',
+        'options',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'options' => 'array',
     ];
 
     public function user(): BelongsTo
@@ -23,8 +33,8 @@ class Cart extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function getSubtotalAttribute()
+    public function getTotalAttribute()
     {
-        return $this->quantity * $this->product->price;
+        return $this->price * $this->quantity;
     }
 }

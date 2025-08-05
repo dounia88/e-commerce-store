@@ -16,33 +16,69 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Sport',
-                'description' => 'Lunettes de soleil sportives pour les activités en plein air'
+                'name' => 'Électronique',
+                'description' => 'Tous les produits électroniques et technologiques',
+                'slug' => 'electronique',
             ],
             [
-                'name' => 'Classic',
-                'description' => 'Lunettes de soleil classiques et élégantes'
+                'name' => 'Mode & Accessoires',
+                'description' => 'Vêtements, chaussures et accessoires de mode',
+                'slug' => 'mode-accessoires',
             ],
             [
-                'name' => 'Fashion',
-                'description' => 'Lunettes de soleil tendance et modernes'
+                'name' => 'Maison & Jardin',
+                'description' => 'Décoration, mobilier et articles pour la maison',
+                'slug' => 'maison-jardin',
             ],
             [
-                'name' => 'Premium',
-                'description' => 'Lunettes de soleil haut de gamme et luxueuses'
+                'name' => 'Sport & Loisirs',
+                'description' => 'Équipements sportifs et articles de loisirs',
+                'slug' => 'sport-loisirs',
             ],
             [
-                'name' => 'New Arrivals',
-                'description' => 'Nouvelles arrivées et dernières tendances'
-            ]
+                'name' => 'Livres & Médias',
+                'description' => 'Livres, films, musique et jeux vidéo',
+                'slug' => 'livres-medias',
+            ],
+            [
+                'name' => 'Beauté & Santé',
+                'description' => 'Cosmétiques, parfums et produits de santé',
+                'slug' => 'beaute-sante',
+            ],
+            [
+                'name' => 'Automobile',
+                'description' => 'Pièces auto, accessoires et équipements',
+                'slug' => 'automobile',
+            ],
+            [
+                'name' => 'Bébé & Enfant',
+                'description' => 'Articles pour bébés et enfants',
+                'slug' => 'bebe-enfant',
+            ],
+            [
+                'name' => 'Alimentation',
+                'description' => 'Produits alimentaires et boissons',
+                'slug' => 'alimentation',
+            ],
+            [
+                'name' => 'Bricolage & Outils',
+                'description' => 'Outils, matériaux et équipements de bricolage',
+                'slug' => 'bricolage-outils',
+            ],
+            [
+                'name' => 'Informatique',
+                'description' => 'Ordinateurs, composants et accessoires informatiques',
+                'slug' => 'informatique',
+            ],
+            [
+                'name' => 'Téléphonie',
+                'description' => 'Smartphones, tablettes et accessoires',
+                'slug' => 'telephonie',
+            ],
         ];
 
         foreach ($categories as $category) {
-            Category::create([
-                'name' => $category['name'],
-                'slug' => Str::slug($category['name']),
-                'description' => $category['description']
-            ]);
+            Category::create($category);
         }
     }
 }

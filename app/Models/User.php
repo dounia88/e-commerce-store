@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -48,25 +47,49 @@ class User extends Authenticatable
         ];
     }
 
-    public function orders(): HasMany
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
     {
-        return $this->hasMany(Order::class);
+        return $this->hasRole('admin');
     }
 
-    public function cartItems(): HasMany
+    /**
+     * Check if user is vendor/seller
+     */
+    public function isVendor(): bool
     {
-        return $this->hasMany(Cart::class);
+        return $this->hasRole('seller') || $this->hasRole('vendor');
     }
 
-    public function getCartTotalAttribute()
+    /**
+     * Check if user is client
+     */
+    public function isClient(): bool
     {
-        return $this->cartItems->sum(function ($item) {
-            return $item->quantity * $item->product->price;
-        });
+        return $this->hasRole('client');
     }
 
-    public function getCartItemsCountAttribute()
+    /**
+     * Get cart items count for the user
+     */
+    public function getCartItemsCountAttribute(): int
     {
-        return $this->cartItems->sum('quantity');
+        if (class_exists(\App\Models\Cart::class)) {
+            return $this->hasMany(\App\Models\Cart::class)->sum('quantity') ?? 0;
+        }
+        return 0;
+    }
+
+    /**
+     * Relation avec le panier
+     */
+    public function cartItems()
+    {
+        if (class_exists(\App\Models\Cart::class)) {
+            return $this->hasMany(\App\Models\Cart::class);
+        }
+        return collect();
     }
 }

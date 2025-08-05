@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
@@ -15,139 +16,143 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
+        // Récupérer les catégories et utilisateurs
+        $categories = Category::all();
+        $users = User::all();
+
+        if ($users->isEmpty()) {
+            $this->command->error('Aucun utilisateur trouvé. Veuillez d\'abord exécuter UserSeeder.');
+            return;
+        }
+
         $products = [
+            // Électronique
             [
-                'name' => 'Hyper',
-                'description' => 'Lunettes de soleil sportives avec un design moderne et des verres polarisés pour une protection optimale.',
-                'price' => 99.00,
-                'original_price' => null,
-                'category_id' => 1, // Sport
-                'sku' => 'HY001',
+                'name' => 'iPhone 15 Pro',
+                'description' => 'Le dernier iPhone avec des fonctionnalités avancées et un design premium.',
+                'price' => 1199.99,
+                'compare_price' => 1299.99,
                 'stock' => 50,
+                'sku' => 'IPHONE15PRO',
+                'brand' => 'Apple',
+                'model' => 'iPhone 15 Pro',
+                'category_id' => $categories->where('slug', 'telephonie')->first()->id,
                 'is_featured' => true,
-                'specifications' => [
-                    'Height' => '4 cm',
-                    'Width' => '15 cm',
-                    'Material' => 'Polycarbonate',
-                    'Lens Type' => 'Polarized'
-                ]
             ],
             [
-                'name' => 'Frame v1',
-                'description' => 'Lunettes de soleil classiques avec un design ovale élégant et des verres colorés.',
-                'price' => 82.00,
-                'original_price' => 99.50,
-                'category_id' => 2, // Classic
-                'sku' => 'FR001',
-                'stock' => 30,
-                'is_featured' => false,
-                'specifications' => [
-                    'Height' => '4.5 cm',
-                    'Width' => '14 cm',
-                    'Material' => 'Acetate',
-                    'Lens Type' => 'Tinted'
-                ]
-            ],
-            [
-                'name' => 'Eclipse',
-                'description' => 'Lunettes de soleil angulaires avec un design moderne et des verres miroir.',
-                'price' => 70.00,
-                'original_price' => 86.00,
-                'category_id' => 3, // Fashion
-                'sku' => 'EC001',
+                'name' => 'MacBook Air M2',
+                'description' => 'Ordinateur portable ultra-léger avec puce M2 pour des performances exceptionnelles.',
+                'price' => 1299.99,
+                'compare_price' => 1499.99,
                 'stock' => 25,
+                'sku' => 'MACBOOKAIRM2',
+                'brand' => 'Apple',
+                'model' => 'MacBook Air M2',
+                'category_id' => $categories->where('slug', 'informatique')->first()->id,
                 'is_featured' => true,
-                'specifications' => [
-                    'Height' => '4 cm',
-                    'Width' => '15 cm',
-                    'Material' => 'Metal',
-                    'Lens Type' => 'Mirror'
-                ]
             ],
             [
-                'name' => 'Spectra',
-                'description' => 'Lunettes de soleil larges avec des verres miroir or rose pour un look tendance.',
-                'price' => 54.50,
-                'original_price' => null,
-                'category_id' => 3, // Fashion
-                'sku' => 'SP001',
-                'stock' => 40,
-                'is_featured' => false,
-                'specifications' => [
-                    'Height' => '5 cm',
-                    'Width' => '16 cm',
-                    'Material' => 'Plastic',
-                    'Lens Type' => 'Mirror'
-                ]
+                'name' => 'Samsung Galaxy S24',
+                'description' => 'Smartphone Android haut de gamme avec IA intégrée.',
+                'price' => 899.99,
+                'compare_price' => 999.99,
+                'stock' => 75,
+                'sku' => 'GALAXYS24',
+                'brand' => 'Samsung',
+                'model' => 'Galaxy S24',
+                'category_id' => $categories->where('slug', 'telephonie')->first()->id,
             ],
             [
-                'name' => 'Eclipse V2',
-                'description' => 'Version améliorée des lunettes Eclipse avec un design plus courbé et sportif.',
-                'price' => 165.00,
-                'original_price' => 200.00,
-                'category_id' => 4, // Premium
-                'sku' => 'EC002',
+                'name' => 'PlayStation 5',
+                'description' => 'Console de jeux nouvelle génération avec graphismes 4K.',
+                'price' => 499.99,
+                'compare_price' => 549.99,
+                'stock' => 30,
+                'sku' => 'PS5',
+                'brand' => 'Sony',
+                'model' => 'PlayStation 5',
+                'category_id' => $categories->where('slug', 'livres-medias')->first()->id,
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Nike Air Max 270',
+                'description' => 'Chaussures de sport confortables avec amorti Air Max.',
+                'price' => 129.99,
+                'compare_price' => 159.99,
+                'stock' => 100,
+                'sku' => 'NIKEAIRMAX270',
+                'brand' => 'Nike',
+                'model' => 'Air Max 270',
+                'category_id' => $categories->where('slug', 'mode-accessoires')->first()->id,
+            ],
+            [
+                'name' => 'Canon EOS R6',
+                'description' => 'Appareil photo hybride professionnel avec stabilisation 5 axes.',
+                'price' => 2499.99,
+                'compare_price' => 2799.99,
                 'stock' => 15,
-                'is_featured' => true,
-                'specifications' => [
-                    'Height' => '4 cm',
-                    'Width' => '15 cm',
-                    'Material' => 'Glass',
-                    'Lens Type' => 'Premium Polarized'
-                ]
+                'sku' => 'CANONEOSR6',
+                'brand' => 'Canon',
+                'model' => 'EOS R6',
+                'category_id' => $categories->where('slug', 'electronique')->first()->id,
             ],
             [
-                'name' => 'Luxora Classic',
-                'description' => 'Lunettes de soleil classiques avec un design intemporel et des verres de qualité.',
-                'price' => 120.00,
-                'original_price' => null,
-                'category_id' => 2, // Classic
-                'sku' => 'LX001',
-                'stock' => 35,
-                'is_featured' => false,
-                'specifications' => [
-                    'Height' => '4.2 cm',
-                    'Width' => '14.5 cm',
-                    'Material' => 'Acetate',
-                    'Lens Type' => 'Classic Tinted'
-                ]
+                'name' => 'Dyson V15 Detect',
+                'description' => 'Aspirateur sans fil avec détection automatique de la poussière.',
+                'price' => 699.99,
+                'compare_price' => 799.99,
+                'stock' => 40,
+                'sku' => 'DYSONV15',
+                'brand' => 'Dyson',
+                'model' => 'V15 Detect',
+                'category_id' => $categories->where('slug', 'maison-jardin')->first()->id,
             ],
             [
-                'name' => 'Sport Pro',
-                'description' => 'Lunettes de soleil professionnelles pour les sports extrêmes avec une protection maximale.',
-                'price' => 145.00,
-                'original_price' => 180.00,
-                'category_id' => 1, // Sport
-                'sku' => 'SP002',
-                'stock' => 20,
-                'is_featured' => true,
-                'specifications' => [
-                    'Height' => '4.8 cm',
-                    'Width' => '16 cm',
-                    'Material' => 'Polycarbonate',
-                    'Lens Type' => 'UV400 Protection'
-                ]
+                'name' => 'Adidas Ultraboost 22',
+                'description' => 'Chaussures de running avec technologie Boost pour un amorti optimal.',
+                'price' => 179.99,
+                'compare_price' => 199.99,
+                'stock' => 80,
+                'sku' => 'ADIDASULTRABOOST22',
+                'brand' => 'Adidas',
+                'model' => 'Ultraboost 22',
+                'category_id' => $categories->where('slug', 'sport-loisirs')->first()->id,
             ],
             [
-                'name' => 'Fashion Nova',
-                'description' => 'Lunettes de soleil tendance avec un design unique et des verres colorés.',
-                'price' => 95.00,
-                'original_price' => null,
-                'category_id' => 3, // Fashion
-                'sku' => 'FN001',
-                'stock' => 45,
-                'is_featured' => false,
-                'specifications' => [
-                    'Height' => '4.3 cm',
-                    'Width' => '15.2 cm',
-                    'Material' => 'Mixed',
-                    'Lens Type' => 'Gradient'
-                ]
-            ]
+                'name' => 'L\'Oréal Paris Revitalift',
+                'description' => 'Crème anti-âge avec acide hyaluronique pour une peau plus ferme.',
+                'price' => 24.99,
+                'compare_price' => 29.99,
+                'stock' => 200,
+                'sku' => 'LOREALREVITALIFT',
+                'brand' => 'L\'Oréal Paris',
+                'model' => 'Revitalift',
+                'category_id' => $categories->where('slug', 'beaute-sante')->first()->id,
+            ],
+            [
+                'name' => 'Lego Star Wars Millennium Falcon',
+                'description' => 'Set de construction Lego du célèbre vaisseau Star Wars.',
+                'price' => 159.99,
+                'compare_price' => 179.99,
+                'stock' => 60,
+                'sku' => 'LEGOSTARWARS',
+                'brand' => 'Lego',
+                'model' => 'Millennium Falcon',
+                'category_id' => $categories->where('slug', 'bebe-enfant')->first()->id,
+            ],
         ];
 
-        foreach ($products as $product) {
-            Product::create($product);
+        foreach ($products as $productData) {
+            $productData['user_id'] = $users->random()->id;
+            $productData['slug'] = Str::slug($productData['name']);
+            $productData['images'] = ['products/default-product.jpg'];
+            $productData['specifications'] = [
+                'Couleur' => 'Noir',
+                'Matériau' => 'Premium',
+                'Garantie' => '2 ans',
+            ];
+            
+            Product::create($productData);
         }
     }
 }

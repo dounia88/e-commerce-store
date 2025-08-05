@@ -2,45 +2,62 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
+        'user_id',
+        'category_id',
         'name',
+        'slug',
         'description',
         'price',
-        'original_price',
-        'image',
+        'compare_price',
         'stock',
-        'category_id',
         'sku',
+        'barcode',
+        'brand',
+        'model',
+        'images',
         'specifications',
         'is_featured',
-        'is_active'
+        'is_active',
+        'is_virtual',
+        'weight',
+        'length',
+        'width',
+        'height',
     ];
 
     protected $casts = [
+        'price' => 'decimal:2',
+        'compare_price' => 'decimal:2',
+        'images' => 'array',
         'specifications' => 'array',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
-        'price' => 'decimal:2',
-        'original_price' => 'decimal:2'
+        'is_virtual' => 'boolean',
+        'weight' => 'decimal:2',
+        'length' => 'decimal:2',
+        'width' => 'decimal:2',
+        'height' => 'decimal:2',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
-    }
-
-    public function orders(): BelongsToMany
-    {
-        return $this->belongsToMany(Order::class, 'order_products')
-                    ->withPivot('quantity', 'price')
-                    ->withTimestamps();
     }
 
     public function carts(): HasMany
@@ -48,21 +65,51 @@ class Product extends Model
         return $this->hasMany(Cart::class);
     }
 
+    public function orderProducts(): HasMany
+    {
+        return $this->hasMany(OrderProduct::class);
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    public function scopeInStock($query)
+    {
+        return $query->where('stock', '>', 0);
+    }
+
     public function getDiscountPercentageAttribute()
     {
-        if ($this->original_price && $this->original_price > $this->price) {
-            return round((($this->original_price - $this->price) / $this->original_price) * 100);
+        if ($this->compare_price && $this->compare_price > $this->price) {
+            return round((($this->compare_price - $this->price) / $this->compare_price) * 100);
         }
         return 0;
     }
 
-    public function getFormattedPriceAttribute()
+    public function getMainImageAttribute()
     {
-        return '$' . number_format($this->price, 2);
+        return $this->images ? $this->images[0] ?? null : null;
     }
 
-    public function getFormattedOriginalPriceAttribute()
+    public function isInStock()
     {
-        return $this->original_price ? '$' . number_format($this->original_price, 2) : null;
+        return $this->stock > 0;
+    }
+
+    public function hasDiscount()
+    {
+        return $this->compare_price && $this->compare_price > $this->price;
     }
 }

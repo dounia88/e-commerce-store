@@ -16,9 +16,9 @@ class CartController extends Controller
 
     public function index()
     {
-        $cartItems = Auth::user()->cartItems()->with('product')->get();
+        $cartItems = Auth::user()->carts()->with(['product.category'])->get();
         $total = $cartItems->sum(function ($item) {
-            return $item->quantity * $item->product->price;
+            return $item->price * $item->quantity;
         });
 
         return view('cart.index', compact('cartItems', 'total'));
@@ -27,50 +27,72 @@ class CartController extends Controller
     public function add(Request $request, Product $product)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1|max:' . $product->stock
+            'quantity' => 'required|integer|min:1|max:' . $product->stock,
         ]);
 
-        $cartItem = Cart::where('user_id', Auth::id())
-                       ->where('product_id', $product->id)
-                       ->first();
+        // Vérifier si le produit est déjà dans le panier
+        $cartItem = Auth::user()->carts()->where('product_id', $product->id)->first();
 
         if ($cartItem) {
+            // Mettre à jour la quantité
+            $newQuantity = $cartItem->quantity + $request->quantity;
+            
+            if ($newQuantity > $product->stock) {
+                return back()->with('error', 'Quantité demandée non disponible en stock.');
+            }
+
             $cartItem->update([
-                'quantity' => $cartItem->quantity + $request->quantity
+                'quantity' => $newQuantity,
+                'price' => $product->price,
             ]);
         } else {
-            Cart::create([
-                'user_id' => Auth::id(),
+            // Ajouter un nouvel article
+            Auth::user()->carts()->create([
                 'product_id' => $product->id,
-                'quantity' => $request->quantity
+                'quantity' => $request->quantity,
+                'price' => $product->price,
             ]);
         }
 
-        return redirect()->back()->with('success', 'Produit ajouté au panier !');
+        return back()->with('success', 'Produit ajouté au panier avec succès.');
     }
 
-    public function update(Request $request, Cart $cartItem)
+    public function update(Request $request, Cart $cart)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1|max:' . $cartItem->product->stock
+            'quantity' => 'required|integer|min:1|max:' . $cart->product->stock,
         ]);
 
-        $cartItem->update(['quantity' => $request->quantity]);
+        $cart->update([
+            'quantity' => $request->quantity,
+            'price' => $cart->product->price,
+        ]);
 
-        return redirect()->back()->with('success', 'Quantité mise à jour !');
+        return back()->with('success', 'Quantité mise à jour avec succès.');
     }
 
-    public function remove(Cart $cartItem)
+    public function remove(Cart $cart)
     {
-        $cartItem->delete();
+        if ($cart->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-        return redirect()->back()->with('success', 'Produit retiré du panier !');
+        $cart->delete();
+
+        return back()->with('success', 'Produit retiré du panier.');
     }
 
     public function clear()
     {
-        Auth::user()->cartItems()->delete();
+        Auth::user()->carts()->delete();
 
-        return redirect()->back()->with('success', 'Panier vidé !');
+        return back()->with('success', 'Panier vidé avec succès.');
+    }
+
+    public function getCartCount()
+    {
+        $count = Auth::user()->carts()->sum('quantity');
+        
+        return response()->json(['count' => $count]);
     }
 }
