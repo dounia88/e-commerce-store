@@ -41,6 +41,11 @@ if (app()->environment('local')) {
     Route::get('/demo-categories', function () {
         return view('demo-categories');
     })->name('demo.categories');
+
+    Route::get('/test-products', function () {
+        $products = \App\Models\Product::with(['category', 'user'])->take(8)->get();
+        return view('test-products', compact('products'));
+    })->name('test.products');
 }
 
 // Routes pour le panier (authentification requise)

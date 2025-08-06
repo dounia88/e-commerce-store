@@ -135,16 +135,19 @@
                                 </div>
                                 <div class="text-right">
                                     <p class="font-medium text-gray-900">${{ number_format($order->total_price, 2) }}</p>
-                                    @php
-                                        $statusClasses = match($order->status) {
-                                            'completed' => 'bg-green-100 text-green-800',
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            default => 'bg-red-100 text-red-800'
-                                        };
-                                    @endphp
-                                    <span class="px-2 py-1 text-xs rounded-full {{ $statusClasses }}">
-                                        {{ ucfirst($order->status) }}
-                                    </span>
+                                    @if($order->status === 'completed')
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-600">
+                                            {{ ucfirst($order->status) }}
+                                        </span>
+                                    @elseif($order->status === 'pending')
+                                        <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-600">
+                                            {{ ucfirst($order->status) }}
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-600">
+                                            {{ ucfirst($order->status) }}
+                                        </span>
+                                    @endif
                                 </div>
                                 <a href="{{ route('orders.show', $order) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                     Voir détails

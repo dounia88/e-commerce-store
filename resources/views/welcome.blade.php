@@ -118,33 +118,94 @@
                     $featuredProducts = \App\Models\Product::with(['category', 'user'])->featured()->active()->inStock()->take(4)->get();
                 @endphp
                 @foreach($featuredProducts as $product)
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div class="aspect-w-1 aspect-h-1 bg-gray-200">
-                            @if($product->main_image)
-                                <img src="{{ asset('storage/' . $product->main_image) }}" alt="{{ $product->name }}" class="w-full h-48 object-cover">
-                            @else
-                                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                        <div class="relative aspect-w-1 aspect-h-1 bg-gray-200 overflow-hidden">
+                            <img src="{{ $product->main_image_url }}"
+                                 alt="{{ $product->name }}"
+                                 class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                                 loading="lazy"
+                                 onerror="this.src='{{ $product->getPlaceholderImage() }}'">
+
+                            @if($product->hasDiscount())
+                                <div class="absolute top-2 left-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        -{{ $product->discount_percentage }}%
+                                    </span>
+                                </div>
+                            @endif
+
+                            @if($product->is_featured)
+                                <div class="absolute top-2 right-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        Vedette
+                                    </span>
                                 </div>
                             @endif
                         </div>
-                        <div class="p-4">
-                            <h3 class="font-semibold text-gray-900 mb-2">{{ $product->name }}</h3>
-                            <p class="text-sm text-gray-600 mb-2">{{ $product->category->name }}</p>
+                        <div class="p-6">
+                            <div class="mb-3">
+                                <h3 class="font-bold text-lg text-gray-900 group-hover:text-indigo-600 transition-colors duration-300 line-clamp-2">
+                                    <a href="{{ route('products.show', $product) }}" class="hover:underline">
+                                        {{ $product->name }}
+                                    </a>
+                                </h3>
+                                <p class="text-sm text-gray-500 mt-1">{{ $product->category->name ?? 'Sans catégorie' }}</p>
+                            </div>
+
+                            @if($product->description)
+                                <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ Str::limit($product->description, 100) }}</p>
+                            @endif
+
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex flex-col">
+                                    @if($product->hasDiscount())
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xl font-bold text-red-600">{{ number_format($product->price, 2) }} €</span>
+                                            <span class="text-sm text-gray-500 line-through">{{ number_format($product->compare_price, 2) }} €</span>
+                                        </div>
+                                    @else
+                                        <span class="text-xl font-bold text-indigo-600">{{ number_format($product->price, 2) }} €</span>
+                                    @endif
+                                </div>
+
+                                <div class="text-right">
+                                    <div class="text-xs text-gray-500">Stock: {{ $product->stock }}</div>
+                                    @if($product->user)
+                                        <div class="text-xs text-gray-400">Par {{ $product->user->name }}</div>
+                                    @endif
+                                </div>
+                            </div>
+
                             <div class="flex items-center justify-between">
-                                <span class="text-lg font-bold text-indigo-600">{{ number_format($product->price, 2) }} €</span>
+                                <a href="{{ route('products.show', $product) }}" class="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center">
+                                    Voir détails
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </a>
+
                                 @auth
-                                    <form action="{{ route('cart.add', $product) }}" method="POST" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700 transition-colors">
-                                            Ajouter
-                                        </button>
-                                    </form>
+                                    @if($product->isInStock())
+                                        <form action="{{ route('cart.add', $product) }}" method="POST" class="inline">
+                                            @csrf
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
+                                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0h9"></path>
+                                                </svg>
+                                                Ajouter
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed">
+                                            Rupture de stock
+                                        </span>
+                                    @endif
                                 @else
-                                    <a href="{{ route('login') }}" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700 transition-colors">
+                                    <a href="{{ route('login') }}" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
                                         Connexion
                                     </a>
                                 @endauth
